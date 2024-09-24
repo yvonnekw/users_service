@@ -1,6 +1,7 @@
 package com.auction.users_service.controller;
 
-import com.auction.auction.dto.UsersRequest;
+
+import com.auction.users_service.dto.UsersRequest;
 import com.auction.users_service.model.Users;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,5 +16,12 @@ public class AuthenticationController {
     public ResponseEntity<Users> registerUser(@RequestBody UsersRequest requestBody) {
 
         return  null;
+    }
+
+    @GetMapping("/")
+    @ResponseStatus(HttpStatus.OK)
+    public String getUsers() {
+
+        return  "users auth api ";
     }
 }
