@@ -1,16 +1,15 @@
 package com.auction.users_service.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//@Data
 @Entity
+@Setter
+@Getter
+@Table(name="users")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +21,7 @@ public class Users {
     private String lastName;
     private String emailAddress;
     private String telephone;
+    // User can act as a buyer or seller
+    private boolean isSeller;
+    private boolean isBuyer;
 }
