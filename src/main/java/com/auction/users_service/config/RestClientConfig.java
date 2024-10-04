@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestClient;
+//import org.springframework.web.client.RestClient;
 
 import com.auction.users_service.client.AddressClient;
-import org.springframework.web.client.support.RestClientAdapter;
-import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+//import org.springframework.web.client.support.RestClientAdapter;
+//import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 //@Configuration
 public class RestClientConfig {
@@ -21,6 +21,8 @@ public class RestClientConfig {
     public RestClientConfig(@Value("${addressService.url}") String addressServiceUrl) {
         this.addressServiceUrl = addressServiceUrl;
     }
+
+    /*
     @Bean
     public AddressClient addressClient() {
     RestClient restClient = RestClient.builder()
@@ -30,7 +32,7 @@ public class RestClientConfig {
     var httpServiceProxyFactory = HttpServiceProxyFactory.builderFor(restClientAdapter).build();
     return  httpServiceProxyFactory.createClient(AddressClient.class);
 }
-
+*/
 }
 
 
