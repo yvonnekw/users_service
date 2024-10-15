@@ -3,9 +3,12 @@ package com.auction.users_service.service.impl;
 import com.auction.users_service.config.KeycloakConfig;
 import com.auction.users_service.dto.UsersRequest;
 import com.auction.users_service.dto.UsersResponse;
+import com.auction.users_service.exception.UserNotFoundException;
+import com.auction.users_service.mapper.UserMapper;
 import com.auction.users_service.model.Users;
 import com.auction.users_service.repostory.UsersRepository;
 //import jakarta.ws.rs.core.Response;
+//import com.ctc.wstx.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 /*
@@ -18,10 +21,13 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 */
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
+
+import static java.lang.String.format;
 //import org.keycloak.admin.client.Keycloak;
 
 @Service
@@ -30,6 +36,7 @@ import java.util.Objects;
 public class UsersServiceImpl {
 
     private final UsersRepository usersRepository;
+   private final UserMapper userMapper;
     //@Autowired
     //private final Keycloak keycloak;
     //private final KeycloakConfig keycloakConfig;
@@ -38,6 +45,8 @@ public class UsersServiceImpl {
     //private String realm;
 
     public UsersResponse createUser(UsersRequest usersRequestBody) {
+
+
 
         Users users = Users.builder()
                 .username(usersRequestBody.username())
@@ -53,7 +62,7 @@ public class UsersServiceImpl {
         createUserInKeycloak(usersRequestBody);
 
         createUserInKeycloak(usersRequestBody);*/
-        return new UsersResponse(users.getUserId(), users.getUsername(), users.getPassword(), users.getTelephone(), users.getFirstName(), users.getLastName(), users.getEmailAddress());
+        return new UsersResponse(users.getUserId(), users.getUsername(), users.getTelephone(), users.getFirstName(), users.getLastName(), users.getEmailAddress());
     }
     /*
     private void createUserInKeycloak(UsersRequest userRequest) {
@@ -146,7 +155,7 @@ public class UsersServiceImpl {
     public List<UsersResponse> getAllUsers() {
        return usersRepository.findAll()
                .stream()
-               .map(users -> new UsersResponse(users.getUserId(), users.getUsername(), users.getPassword(), users.getTelephone(), users.getFirstName(), users.getLastName(), users.getEmailAddress()))
+               .map(users -> new UsersResponse(users.getUserId(), users.getUsername(), users.getTelephone(), users.getFirstName(), users.getLastName(), users.getEmailAddress()))
                .toList();
     }
 
@@ -157,7 +166,7 @@ public class UsersServiceImpl {
         usersRepository.save(user);
         log.info("User with id {} is now marked as a seller.", userId);
 
-        return new UsersResponse(user.getUserId(), user.getUsername(), null, user.getTelephone(), user.getFirstName(), user.getLastName(), user.getEmailAddress());
+        return new UsersResponse(user.getUserId(), user.getUsername(), user.getTelephone(), user.getFirstName(), user.getLastName(), user.getEmailAddress());
     }
 
 
@@ -168,7 +177,7 @@ public class UsersServiceImpl {
         usersRepository.save(user);
         log.info("User with id {} is now marked as a buyer.", userId);
 
-        return new UsersResponse(user.getUserId(), user.getUsername(), null, user.getTelephone(), user.getFirstName(), user.getLastName(), user.getEmailAddress());
+        return new UsersResponse(user.getUserId(), user.getUsername(),  user.getTelephone(), user.getFirstName(), user.getLastName(), user.getEmailAddress());
     }
 
 
@@ -184,4 +193,51 @@ public class UsersServiceImpl {
         return user.isBuyer();
     }
 
+    public UsersResponse updateUser(UsersRequest requestBody) {
+        var user = usersRepository.findById(requestBody.userId())
+                .orElseThrow(() -> new UserNotFoundException(
+                   format("Can not update user with the Id provide. No user found with the provided Id:: %s", requestBody.userId())
+
+                ));
+        mergeUser(user, requestBody);
+        usersRepository.save(user);
+
+        return new UsersResponse(user.getUserId(),  user.getUsername(),  user.getTelephone(), user.getFirstName(), user.getLastName(), user.getEmailAddress());
+    }
+
+    private void mergeUser(Users user, UsersRequest requestBody) {
+        if (StringUtils.isNotBlank(requestBody.firstName())) {
+            user.setFirstName(requestBody.firstName());
+        }
+        if (StringUtils.isNotBlank(requestBody.lastName())) {
+            user.setLastName(requestBody.lastName());
+        }
+        if (StringUtils.isNotBlank(requestBody.username())) {
+            user.setUsername(requestBody.username());
+        }
+        if (StringUtils.isNotBlank(requestBody.emailAddress())) {
+            user.setEmailAddress(requestBody.emailAddress());
+        }
+        if (StringUtils.isNotBlank(requestBody.telephone())) {
+            user.setTelephone(requestBody.telephone());
+        }
+    }
+
+    public Boolean existByUserId(Long userId) {
+        return  usersRepository.findById(userId)
+                .isPresent();
+    }
+
+    public UsersResponse findUserByUserId(Long userId) {
+
+        return usersRepository.findById(userId)
+                .map(userMapper::fromUser)
+                .orElseThrow(() -> new UserNotFoundException(
+                        format("Can not find user with the given Id %s", userId)
+                ));
+    }
+
+    public void deleteUserByUserId(Long userId) {
+        usersRepository.deleteById(userId);
+    }
 }

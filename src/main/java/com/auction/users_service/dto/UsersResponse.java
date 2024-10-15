@@ -4,6 +4,6 @@ import lombok.*;
 
 //@Data
 
-public record UsersResponse(Long userId, String username, String password, String firstName, String lastName, String emailAddress, String telephone) {
+public record UsersResponse(Long userId, String username, String firstName, String lastName, String emailAddress, String telephone) {
 
 }

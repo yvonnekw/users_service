@@ -1,0 +1,31 @@
+# Application name and config server import
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888
+    #enabled: true
+    application:
+      name: user-service
+userService:
+  url: http://localhost:8585
+
+ #Eureka Client Config
+#eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+#eureka.instance.hostname=localhost
+#eureka.client.register-with-eureka=true
+#eureka.client.fetch-registry=true
+
+
+#spring.application.name=user-service
+#spring.config.import=optional:configserver:http://localhost:8888
+
+
+
+#keycloak.auth-server-url=http://localhost:8090/auth
+#keycloak.realm=oauth2-auction-realm
+#keycloak.resource=oauth2-auction-client
+#keycloak.credentials.secret=gBV2jj3fD8bdNDhuZUwUv3WbWoOGDVWD
+#keycloak.grant-type=client_credentials
+#keycloak.admin-id=admin-cli
+#keycloak.admin-secret=4ciIbE3C9QbTVIofaUUepkfOAVV0br0p
+#keycloak.username=admin
+#keycloak.password=admin
