@@ -1,74 +1,81 @@
 package com.auction.users_service;
 
-import com.auction.users_service.dto.UsersRequest;
-import com.auction.users_service.repostory.UsersRepository;
-import com.mongodb.assertions.Assertions;
+import io.restassured.RestAssured;
+
+import org.hamcrest.Matchers;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.context.annotation.Import;
 
-@Testcontainers
-@SpringBootTest
-@AutoConfigureMockMvc
+@Import(TestcontainersConfiguration.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UsersServiceApplicationTests {
 
-	@Autowired
-	private ObjectMapper objectMapper;
-	@Autowired
-	private UsersRepository usersRepository;
+	//@LocalServerPort
+	//private Integer port;
 
-	@Container
-	PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16");
-	//TestcontainersConfiguration testcontainersConfiguration = new TestcontainersConfiguration();
-	//PostgreSQLContainer<?> post = testcontainersConfiguration.postgresContainer();
-			//post.("integration-tests-db")
-			//.withUsername("sa")
-			//.withPassword("sa");
-
-
-	@Autowired
-	private MockMvc mockMvc;
-/*
-	@DynamicPropertySource
-	void postgresProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.datasource.url", post::getJdbcUrl);
-		registry.add("spring.datasource.username", post ::getUsername);
-		registry.add("spring.datasource.password", post::getPassword);
-	}*/
-
+	@BeforeEach
+	void setUp() {
+		RestAssured.baseURI = "http://localhost";
+		//RestAssured.port = port;
+		RestAssured.port = 9090;
+	}
 
 	@Test
-	void shouldCreateUser() throws Exception {
-		UsersRequest usersRequest = getUserRequest();
-		String usersRequestString = objectMapper.writeValueAsString(usersRequest);
-		mockMvc.perform(MockMvcRequestBuilders.post("/api/user/create-user")
-		.contentType(MediaType.APPLICATION_JSON)
-				.content(usersRequestString))
-				.andExpect(status().isCreated());
-		Assertions.assertTrue(usersRepository.findAll().size() == 1);
+	void shouldCreateUser() {
+		String requestBody =
+				"""
+				{
+				   "username" : "Honda",
+				    "password" : "pass",
+				    "firstName" : "Kim",
+				    "lastName" : "Kwebena",
+				    "emailAddress" : "goeg@gmail.com",
+				    "telephone" : "09988765543"
+				}
+				""";
+		RestAssured.given()
+				.contentType("application/json")
+				.body(requestBody)
+				.when()
+				.post("/api/auth/create-user")
+				.then()
+				.statusCode(201)
+				.body("userId", Matchers.notNullValue());
+				//.body("firstName", Matchers.equalTo("Kim"))
+				//.body("lastName", Matchers.equalTo("Kwebena"))
+				//.body("telephone", Matchers.equalTo("09988765543"));
 	}
 
-	private UsersRequest getUserRequest() {
-		return UsersRequest.builder()
-				.username("kofi")
-				.password("pass")
-				.telephone("43095823045")
-				.firstName("Popper")
-				.lastName("Webengine")
-				.emailAddress("kofi.gmail.com")
-				.build();
+	@Test
+	void shouldCreateUserThroughGateway() {
+		String requestBody =
+				"""
+				{
+				   "username" : "Honda",
+				    "password" : "pass",
+				    "firstName" : "Kim",
+				    "lastName" : "Kwebena",
+				    "emailAddress" : "goeg@gmail.com",
+				    "telephone" : "09988765543"
+				}
+				""";
+		RestAssured.given()
+				.contentType("application/json")
+				.body(requestBody)
+				.when()
+				.post("/api/auth/create-user")
+				.then()
+				.statusCode(201)
+				.body("userId", Matchers.notNullValue());
+		//.body("firstName", Matchers.equalTo("Kim"))
+		//.body("lastName", Matchers.equalTo("Kwebena"))
+		//.body("telephone", Matchers.equalTo("09988765543"));
 	}
+
 
 }
